@@ -54,15 +54,21 @@ A web-based RSA encryption tool built with Spring Boot and modern web technologi
    - Click "Generate Key Pair"
    - Save both public and private key components securely
 
+   ![Key Generation Screenshot](docs/images/key-generation.png)
+
 2. Encrypt a File
    - Select the file to encrypt
    - Input the recipient's public key components
    - Click "Encrypt and Download"
 
+   ![File Encryption Screenshot](docs/images/encrypt-file.png)
+
 3. Decrypt a File
    - Select the encrypted file
    - Input your private key components
    - Click "Decrypt and Download"
+
+   ![File Decryption Screenshot](docs/images/decrypt-file.png)
 
 ## Security Considerations
 
