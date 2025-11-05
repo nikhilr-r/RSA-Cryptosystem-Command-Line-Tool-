@@ -28,7 +28,7 @@ A web-based RSA encryption tool built with Spring Boot and modern web technologi
 
 1. Clone the repository:
    ```bash
-   git clone [your-repository-url]
+   git clone https://github.com/nikhilr-r/RSA-Cryptosystem-Command-Line-Tool-
    cd rsa-webapp
    ```
 
