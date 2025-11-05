@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSA Cryptography Web Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        textarea { font-family: monospace; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">RSA Cryptography Tool</h1>
+            <p class="text-gray-600">A web-based interface for RSA key generation and file encryption/decryption.</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px" id="tabs">
+                    <button data-tab="key-gen" class="tab-btn border-b-2 border-blue-500 text-blue-600 py-4 px-6 font-medium">🔑 Key Generation</button>
+                    <button data-tab="encrypt" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium">🔒 Encrypt File</button>
+                    <button data-tab="decrypt" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-6 font-medium">🔓 Decrypt File</button>
+                </nav>
+            </div>
+
+            <!-- Key Gen Tab -->
+            <div id="key-gen" class="tab-content active p-6 space-y-4">
+                <h3 class="text-lg font-semibold text-gray-800">Generate RSA Key Pair</h3>
+                <div>
+                    <label for="key-size" class="block font-medium text-gray-700">1. Select Key Size:</label>
+                    <select id="key-size" class="w-full mt-1 p-2 border rounded-md">
+                        <option value="2048">2048 bits (Recommended)</option>
+                        <option value="3072">3072 bits (Extra Security)</option>
+                        <option value="4096">4096 bits (Maximum Security)</option>
+                    </select>
+                </div>
+                <button id="generate-btn" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600">Generate Key Pair</button>
+                <div id="key-output" class="space-y-4 hidden">
+                    <div>
+                        <h4 class="font-medium text-gray-700">Public Key Components:</h4>
+                        <div class="space-y-2">
+                            <label class="block text-sm">Modulus (n):</label>
+                            <textarea id="public-modulus" rows="3" class="w-full p-2 border rounded-md bg-gray-50" readonly></textarea>
+                            <label class="block text-sm">Public Exponent (e):</label>
+                            <input type="text" id="public-exponent" class="w-full p-2 border rounded-md bg-gray-50" readonly>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-700">Private Key Components:</h4>
+                        <div class="space-y-2">
+                            <label class="block text-sm">Modulus (n):</label>
+                            <textarea id="private-modulus" rows="3" class="w-full p-2 border rounded-md bg-gray-50" readonly></textarea>
+                            <label class="block text-sm">Private Exponent (d):</label>
+                            <textarea id="private-exponent" rows="3" class="w-full p-2 border rounded-md bg-gray-50" readonly></textarea>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <p class="font-medium">Important:</p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Save both public and private key components securely</li>
+                            <li>Share only the public key components for encryption</li>
+                            <li>Keep the private key components secret</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Encryption Tab -->
+            <div id="encrypt" class="tab-content p-6 space-y-4">
+                <h3 class="text-lg font-semibold text-gray-800">Encrypt File</h3>
+                <div>
+                    <label for="encrypt-file" class="block font-medium text-gray-700">1. Select File to Encrypt:</label>
+                    <input type="file" id="encrypt-file" class="w-full mt-1 p-2 border rounded-md">
+                </div>
+                <div>
+                    <label for="encrypt-modulus" class="block font-medium text-gray-700">2. Public Key Modulus (n):</label>
+                    <textarea id="encrypt-modulus" rows="2" class="w-full mt-1 p-2 border rounded-md" placeholder="Paste the modulus from key generation..."></textarea>
+                </div>
+                <div>
+                    <label for="encrypt-exponent" class="block font-medium text-gray-700">3. Public Key Exponent (e):</label>
+                    <input type="text" id="encrypt-exponent" class="w-full mt-1 p-2 border rounded-md" placeholder="65537">
+                </div>
+                <button id="encrypt-btn" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600">Encrypt and Download</button>
+                <div id="encrypt-status" class="text-center text-gray-600"></div>
+            </div>
+
+            <!-- Decryption Tab -->
+            <div id="decrypt" class="tab-content p-6 space-y-4">
+                <h3 class="text-lg font-semibold text-gray-800">Decrypt File</h3>
+                 <div>
+                    <label for="decrypt-file" class="block font-medium text-gray-700">1. Select File to Decrypt:</label>
+                    <input type="file" id="decrypt-file" class="w-full mt-1 p-2 border rounded-md">
+                </div>
+                 <div>
+                    <label for="decrypt-modulus" class="block font-medium text-gray-700">2. Private Key Modulus (n):</label>
+                    <textarea id="decrypt-modulus" rows="2" class="w-full mt-1 p-2 border rounded-md" placeholder="Paste the modulus from key generation..."></textarea>
+                </div>
+                <div>
+                    <label for="decrypt-exponent" class="block font-medium text-gray-700">3. Private Key Exponent (d):</label>
+                    <textarea id="decrypt-exponent" rows="2" class="w-full mt-1 p-2 border rounded-md" placeholder="Paste the private exponent..."></textarea>
+                </div>
+                <button id="decrypt-btn" class="w-full bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600">Decrypt and Download</button>
+                <div id="decrypt-status" class="text-center text-gray-600"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching logic remains the same
+        const tabs = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.getAttribute('data-tab');
+                tabs.forEach(t => t.classList.remove('border-blue-500', 'text-blue-600'));
+                tab.classList.add('border-blue-500', 'text-blue-600');
+                tabContents.forEach(c => c.classList.remove('active'));
+                document.getElementById(target).classList.add('active');
+            });
+        });
+
+        // Key Generation Logic
+        const generateBtn = document.getElementById('generate-btn');
+        const keyOutput = document.getElementById('key-output');
+        
+        generateBtn.addEventListener('click', async () => {
+            const keySize = document.getElementById('key-size').value;
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating Keys...';
+            
+            try {
+                const response = await fetch(`/api/rsa/generate?bitLength=${keySize}`, {
+                    method: 'POST'
+                });
+                if (!response.ok) throw new Error('Failed to generate keys');
+                
+                const keyPair = await response.json();
+                
+                // Display the keys
+                document.getElementById('public-modulus').value = keyPair.publicKey.modulus;
+                document.getElementById('public-exponent').value = keyPair.publicKey.exponent;
+                document.getElementById('private-modulus').value = keyPair.privateKey.modulus;
+                document.getElementById('private-exponent').value = keyPair.privateKey.exponent;
+                
+                keyOutput.classList.remove('hidden');
+            } catch (error) {
+                alert('Error generating keys: ' + error.message);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Key Pair';
+            }
+        });
+
+        // --- NEW FILE API Logic ---
+        const encryptBtn = document.getElementById('encrypt-btn');
+        encryptBtn.addEventListener('click', async () => {
+            const fileInput = document.getElementById('encrypt-file');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file to encrypt.');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('modulus', document.getElementById('encrypt-modulus').value);
+            formData.append('exponent', document.getElementById('encrypt-exponent').value);
+
+            const statusEl = document.getElementById('encrypt-status');
+            statusEl.textContent = 'Encrypting... please wait.';
+            encryptBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/rsa/encrypt-file', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'encrypted.bin';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                statusEl.textContent = 'Encryption successful! Check your downloads.';
+
+            } catch (error) {
+                statusEl.textContent = `Error: ${error.message}`;
+            } finally {
+                encryptBtn.disabled = false;
+            }
+        });
+
+        const decryptBtn = document.getElementById('decrypt-btn');
+        decryptBtn.addEventListener('click', async () => {
+            const fileInput = document.getElementById('decrypt-file');
+            if (fileInput.files.length === 0) {
+                alert('Please select a file to decrypt.');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('modulus', document.getElementById('decrypt-modulus').value);
+            formData.append('exponent', document.getElementById('decrypt-exponent').value);
+
+            const statusEl = document.getElementById('decrypt-status');
+            statusEl.textContent = 'Decrypting... please wait.';
+            decryptBtn.disabled = true;
+
+             try {
+                const response = await fetch('/api/rsa/decrypt-file', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || `Server error: ${response.statusText}`);
+                }
+
+                // Check if the response is an error message
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('text/plain')) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                // Use the original filename with .decrypted extension
+                const originalName = fileInput.files[0].name;
+                a.download = originalName.replace(/\.encrypted$/, '') + '.decrypted';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                statusEl.textContent = 'Decryption successful! Check your downloads.';
+
+            } catch (error) {
+                statusEl.textContent = `Error: ${error.message}`;
+                console.error('Decryption error:', error);
+            } finally {
+                decryptBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
